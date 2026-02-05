@@ -1,16 +1,26 @@
-// Function to update the content and style
-function updateContent() {
-    // Change the text of the paragraph
-    document.getElementById('myParagraph').textContent = 'Welcome to my website!';
+// console.log(document);
+const list = document.getElementById("eventList");
+//const mylist = document.body;
+//console.log(list.parentNode);
+//console.log(list.childNodes);
+//console.log(mylist.childNodes);
+console.log("list.childnodes");
+console.log(list.childNodes);
 
-    // Change the background color of the div
-    document.getElementById('myDiv').style.backgroundColor = 'lightblue';
+console.log("list.children");
+console.log(list.children);
 
-    // Add a new list item to the unordered list
-    const newItem = document.createElement('li');
-    newItem.textContent = 'New Item';
-    document.getElementById('myList').appendChild(newItem);
-}
+console.log("list.firstElementChild");
+console.log(list.firstElementChild)
 
-// Attach event listener to the button
-document.getElementById('updateButton').addEventListener('click', updateContent);
+console.log("list.nextElementSibling");
+console.log(list.firstElementChild.nextElementSibling.nextElementSibling.textContent = "Davis");
+
+console.log(list.firstChild.nextSibling.textContent = "Hello World");
+
+
+// Step 11 - 3
+// const firstli = document.querySelector("#eventList li");
+// console.log(firstli.firstChild.nodeValue ="Test");
+
+
