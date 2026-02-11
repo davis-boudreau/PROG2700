@@ -1,22 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Workshop 06b – DOM Elements</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workshop 08 – NS Journey UI State</title>
+
+  <!-- NOTE: In your real NS Journey, Tailwind will style this.
+       For workshop simplicity, we use minimal CSS. -->
+  <style>
+    body { font-family: Arial, sans-serif; }
+    #webpart { border: 1px solid #ddd; border-radius: 10px; padding: 16px; max-width: 320px; }
+    .title { font-size: 1.25rem; font-weight: bold; }
+    .mb-3 { margin-bottom: 12px; }
+    .day-selector { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .text-center { text-align: center; margin-top: 12px; }
+    .hidden { display: none; }
+    .error { color: #b00020; font-size: 0.95rem; }
+    .success { color: #006400; font-size: 0.95rem; }
+    .muted { color: #666; font-size: 0.9rem; }
+    button { padding: 10px 14px; cursor: pointer; }
+    input, select { width: 100%; padding: 8px; }
+    .row { display: flex; gap: 12px; }
+    .col-md-6 { flex: 1; }
+    .toolbar { display: flex; gap: 8px; justify-content: space-between; margin-top: 10px; }
+  </style>
 </head>
 <body>
 
-  <h1 id="title">DOM Element Manipulation</h1>
+  <div id="webpart">
+    <div class="title">My NSCC Journey</div>
+    <p class="muted">Wizard UI driven by client-side state (no frameworks).</p>
+    <hr>
 
-  <p id="description">
-    This paragraph may be replaced.
-  </p>
+    <!-- Panel 1 -->
+    <form id="panel-1" style="display: block;">
+      <div class="mb-3">
+        <label for="origin_geoname">Leaving From</label>
+        <input type="text" id="origin_geoname" placeholder="Enter your Town">
+      </div>
 
-  <ul id="eventList">
-    <li>Conference</li>
-    <li>Workshop</li>
-    <li>Meetup</li>
-  </ul>
+      <div class="mb-3">
+        <label for="origin_departure">Leaving Time and Days</label>
+        <input type="time" id="origin_departure">
+      </div>
+
+      <div class="mb-3">
+        <label>Select Departure Days</label>
+        <div class="day-selector">
+          <div><input type="checkbox" id="Mon"><label for="Mon">Mon</label></div>
+          <div><input type="checkbox" id="Tue"><label for="Tue">Tue</label></div>
+          <div><input type="checkbox" id="Wed"><label for="Wed">Wed</label></div>
+          <div><input type="checkbox" id="Thu"><label for="Thu">Thu</label></div>
+          <div><input type="checkbox" id="Fri"><label for="Fri">Fri</label></div>
+          <div><input type="checkbox" id="Sat"><label for="Sat">Sat</label></div>
+          <div><input type="checkbox" id="Sun"><label for="Sun">Sun</label></div>
+        </div>
+      </div>
+    </form>
+
+    <!-- Panel 2 -->
+    <form id="panel-2" style="display: none;">
+      <div class="mb-3">
+        <label for="nscc_stop">Arriving Campus</label>
+        <input type="text" id="nscc_stop" placeholder="Type the name of your campus:">
+      </div>
+
+      <div class="mb-3">
+        <label for="nscc_departure">Arrival Time</label>
+        <input type="time" id="nscc_departure">
+      </div>
+    </form>
+
+    <!-- Panel 3 -->
+    <form id="panel-3" style="display: none;">
+      <div class="mb-3">
+        <label for="stop">Meet Me Location</label>
+        <select id="stop">
+          <option value="">Car Pool or Pick-Up Location</option>
+          <option value="stop1">Meet me Stop 1 from API Server</option>
+          <option value="stop2">Meet me Stop 2 from API Server</option>
+          <option value="stop3">Meet me Stop 3 from API Server</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="stop_arrive_time">Estimated Meet-Me Time</label>
+        <input type="text" id="stop_arrive_time" value="Calculated From API" readonly>
+      </div>
+    </form>
+
+    <!-- Panel 4 -->
+    <form id="panel-4" style="display: none;">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="start_date">Journey Start Date</label>
+          <input type="date" id="start_date">
+        </div>
+        <div class="col-md-6">
+          <label for="end_date">Journey End Date</label>
+          <input type="date" id="end_date">
+        </div>
+      </div>
+    </form>
+
+    <!-- UX Messaging -->
+    <p id="message" class="muted"></p>
+
+    <!-- Buttons -->
+    <div class="toolbar">
+      <button id="back-button" type="button">Back</button>
+      <div>
+        <button id="reset-button" type="button">Reset Draft</button>
+        <button id="next-button" type="button">Next</button>
+      </div>
+    </div>
+  </div>
 
   <script src="scratch.js"></script>
 </body>
