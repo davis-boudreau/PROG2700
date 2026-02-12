@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant User
+    participant Btn as Next Button
+    participant JS as goNext()
+    participant Read as readPanelIntoState(4)
+    participant Validate as validatePanel(4)
+    participant State as draft/currentPanel
+    participant Storage as localStorage
+    participant UI as showPanel / setMessage
+
+    User->>Btn: click (on Panel 4)
+    Btn->>JS: goNext()
+
+    %% 1) Read current panel inputs into state
+    JS->>Read: readPanelIntoState(4)
+    Read-->>State: draft fields updated\n(start_date, end_date, ...)
+
+    %% 2) Validate panel 4
+    JS->>Validate: validatePanel(4)
+    Validate-->>JS: OK or error
+
+    alt Validation Error
+        JS->>UI: setMessage(error, "error")
+        UI-->>User: show error (stay on Panel 4)
+    else Validation OK
+        %% 3) Save to localStorage
+        JS->>Storage: setItem(STORAGE_KEY,\n JSON.stringify({ draft, savedAt: ISO8601 }))
+        Storage-->>JS: success
+
+        %% 4) UX after save: restart at Step 1
+        JS->>UI: showPanel(1)
+        UI-->>State: currentPanel = 1
+        JS->>UI: setMessage("Draft saved locally. Restarted at Step 1.", "success")
+    end

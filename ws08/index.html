@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Workshop 08 – NS Journey (Tailwind + State)</title>
+
+  <!-- Tailwind CDN (workshop mode) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Brand token extension -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#004780',
+            secondary: '#2B71B9',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+
+  <div id="webpart" class="w-full max-w-3xl bg-white rounded-2xl shadow p-6">
+
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-primary">NS Journey</h1>
+        <p class="text-sm text-slate-600">
+          Wizard UI driven by client-side state (vanilla JS) + Tailwind form styling.
+        </p>
+      </div>
+
+      <div class="text-right">
+        <p id="step-indicator" class="text-sm font-medium text-slate-700">Step 1 of 4</p>
+        <p class="text-xs text-slate-500">Draft: localStorage</p>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Shared form styles (teach once) -->
+    <!-- label: text-sm font-medium text-primary -->
+    <!-- control: w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-secondary focus:border-secondary -->
+
+    <!-- Panel 1 -->
+    <form id="panel-1" class="space-y-4">
+      <div>
+        <label for="origin_geoname" class="block text-sm font-medium text-primary mb-1">Leaving From</label>
+        <input id="origin_geoname" type="text" placeholder="Enter your Town"
+          class="w-full rounded-md border border-slate-300 px-3 py-2
+                 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" />
+      </div>
+
+      <div>
+        <label for="origin_departure" class="block text-sm font-medium text-primary mb-1">Leaving Time</label>
+        <input id="origin_departure" type="time"
+          class="w-full rounded-md border border-slate-300 px-3 py-2
+                 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" />
+      </div>
+
+      <div>
+        <p class="block text-sm font-medium text-primary mb-2">Select Departure Days</p>
+        <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-y-3 gap-x-2 text-sm text-slate-700">
+            <label class="flex items-center gap-2 cursor-pointer"><input class="h-4 w-4 rounded border-slate-300" type="checkbox" id="Mon"> Mon</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input class="h-4 w-4 rounded border-slate-300" type="checkbox" id="Tue"> Tue</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input class="h-4 w-4 rounded border-slate-300" type="checkbox" id="Wed"> Wed</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input class="h-4 w-4 rounded border-slate-300" type="checkbox" id="Thu"> Thu</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input class="h-4 w-4 rounded border-slate-300" type="checkbox" id="Fri"> Fri</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input class="h-4 w-4 rounded border-slate-300" type="checkbox" id="Sat"> Sat</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input class="h-4 w-4 rounded border-slate-300" type="checkbox" id="Sun"> Sun</label>
+        </div>
+      </div>
+    </form>
+
+    <!-- Panel 2 -->
+    <form id="panel-2" class="space-y-4">
+      <div>
+        <label for="nscc_stop" class="block text-sm font-medium text-primary mb-1">Arriving Campus</label>
+        <input id="nscc_stop" type="text" placeholder="Type the name of your campus"
+          class="w-full rounded-md border border-slate-300 px-3 py-2
+                 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" />
+      </div>
+
+      <div>
+        <label for="nscc_departure" class="block text-sm font-medium text-primary mb-1">Arrival Time</label>
+        <input id="nscc_departure" type="time"
+          class="w-full rounded-md border border-slate-300 px-3 py-2
+                 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" />
+      </div>
+    </form>
+
+    <!-- Panel 3 -->
+    <form id="panel-3" class="space-y-4">
+      <div>
+        <label for="stop" class="block text-sm font-medium text-primary mb-1">Meet Me Location</label>
+        <select id="stop"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 bg-white
+                 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary">
+          <option value="">Car Pool or Pick-Up Location</option>
+          <option value="stop1">Meet me Stop 1 from API Server</option>
+          <option value="stop2">Meet me Stop 2 from API Server</option>
+          <option value="stop3">Meet me Stop 3 from API Server</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="stop_arrive_time" class="block text-sm font-medium text-primary mb-1">Estimated Meet-Me Time</label>
+        <input id="stop_arrive_time" type="text" value="Calculated From API" readonly
+          class="w-full rounded-md border border-slate-300 px-3 py-2 bg-slate-50 text-slate-600" />
+      </div>
+    </form>
+
+    <!-- Panel 4 -->
+    <form id="panel-4" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="start_date" class="block text-sm font-medium text-primary mb-1">Journey Start Date</label>
+          <input id="start_date" type="date"
+            class="w-full rounded-md border border-slate-300 px-3 py-2
+                   focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" />
+        </div>
+
+        <div>
+          <label for="end_date" class="block text-sm font-medium text-primary mb-1">Journey End Date</label>
+          <input id="end_date" type="date"
+            class="w-full rounded-md border border-slate-300 px-3 py-2
+                   focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" />
+        </div>
+      </div>
+    </form>
+
+    <!-- UX Message -->
+    <p id="message" class="mt-4 text-sm text-slate-600"></p>
+
+    <!-- Buttons -->
+    <div class="mt-6 flex flex-col gap-3
+            sm:flex-row sm:items-center sm:justify-between">
+
+        <!-- Back button -->
+        <button
+            id="back-button"
+            type="button"
+            class="w-full sm:w-auto
+                rounded-md border border-primary px-4 py-3
+                text-primary font-medium
+                hover:bg-primary hover:text-white transition
+                disabled:opacity-50 disabled:cursor-not-allowed">
+            Back
+        </button>
+
+        <!-- Right-side actions -->
+        <div class="flex flex-col gap-2
+                    sm:flex-row sm:gap-2
+                    sm:items-center">
+
+            <button
+            id="reset-button"
+            type="button"
+            class="w-full sm:w-auto
+                    rounded-md border border-slate-300 px-4 py-3
+                    text-slate-700
+                    hover:bg-slate-50 transition">
+            Reset Draft
+            </button>
+
+            <button
+            id="next-button"
+            type="button"
+            class="w-full sm:w-auto
+                    rounded-md bg-primary px-5 py-3
+                    text-white font-semibold
+                    hover:bg-secondary transition
+                    disabled:opacity-50 disabled:cursor-not-allowed">
+            Next
+            </button>
+
+        </div>
+    </div>
+
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

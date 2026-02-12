@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant App as App Startup
+    participant Storage as localStorage
+    participant JS as Script
+    participant DOM as DOM Inputs
+    participant UI as Panels/Message
+
+    App->>JS: loadDraftFromLocalStorage()
+    JS->>Storage: getItem(STORAGE_KEY)
+    Storage-->>JS: saved draft or null
+
+    alt Draft Found
+        JS->>JS: JSON.parse()
+        JS->>DOM: writeStateIntoAllInputs()
+        JS->>UI: showPanel(1)
+        JS->>UI: setMessage("Draft loaded...", success)
+    else No Draft Found
+        JS->>DOM: writeStateIntoAllInputs() (empty draft)
+        JS->>UI: showPanel(1)
+        JS->>UI: setMessage("No saved draft found.", muted)
+    end

@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant User
+    participant Btn as Back Button
+    participant JS as goBack()
+    participant UI as showPanel(n)
+    participant State as currentPanel
+    participant Panels as Panels/StepIndicator
+
+    User->>Btn: click
+    Btn->>JS: goBack()
+
+    JS->>State: read currentPanel
+    alt currentPanel > 1
+        JS->>UI: showPanel(currentPanel - 1)
+        UI->>Panels: hide/show panels, update step indicator\n(disable Back on Panel 1)
+        UI-->>State: update currentPanel
+    else currentPanel == 1
+        JS-->>Btn: no-op (Back disabled)
+    end

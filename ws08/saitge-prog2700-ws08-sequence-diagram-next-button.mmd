@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant User
+    participant Btn as Next Button
+    participant JS as goNext()
+    participant State as draft state
+    participant Validate as validatePanel()
+    participant UI as Panels/Message
+    participant Storage as localStorage
+
+    User->>Btn: click
+    Btn->>JS: goNext()
+
+    %% Step 1: read panel into state
+    JS->>State: readPanelIntoState(currentPanel)
+
+    %% Step 2: validation check
+    JS->>Validate: validatePanel(currentPanel)
+    Validate-->>JS: error or OK
+
+    alt Validation Error
+        JS->>UI: setMessage(error, "error")
+    else Validation OK
+        alt Not Final Panel
+            JS->>UI: showPanel(currentPanel + 1)
+            JS->>UI: setMessage("You are on Step X...", muted)
+        else Final Panel (Panel 4)
+            JS->>Storage: saveDraftToLocalStorage()
+            Storage-->>JS: OK
+            JS->>UI: showPanel(1)
+            JS->>UI: setMessage("Draft saved locally...", success)
+        end
+    end

@@ -1,0 +1,118 @@
+---
+config:
+  layout: elk
+---
+
+flowchart TD
+  %% ========= LAYOUT DIRECTION =========
+  %% Top-to-bottom; major subsystems grouped by subgraphs
+
+  %% ========= USER =========
+  U[User]
+
+  subgraph BROWSER["Browser (Client)"]
+    direction TB
+
+    subgraph UI["UI Layer (DOM)"]
+      direction TB
+      Panels["Panels 1-4 (div#panel-1..4)"]
+      Inputs["Form Inputs: origin, departure, days, etc."]
+      Buttons["Back / Next / Reset Buttons"]
+      Message["Message (div#message)"]
+      StepIndicator["Step Indicator (div#step-indicator)"]
+    end
+
+    subgraph LOGIC["App Logic (Vanilla JS)"]
+      direction TB
+      EV_NEXT["Event: nextBtn.click"]
+      EV_BACK["Event: backBtn.click"]
+      EV_RESET["Event: resetBtn.click"]
+      EV_START["Startup: init UI"]
+
+      showPanel["showPanel(n)"]
+      setMessage["setMessage(text, type)"]
+      readPanel["readPanelIntoState(n)"]
+      writeInputs["writeStateIntoAllInputs()"]
+      validate["validatePanel(n)"]
+      goNext["goNext()"]
+      goBack["goBack()"]
+      resetDraft["resetDraft()"]
+      saveDraft["saveDraftToLocalStorage()"]
+      loadDraft["loadDraftFromLocalStorage()"]
+    end
+
+    subgraph STATE["State Management"]
+      direction TB
+      currentPanel["currentPanel (1..4)"]
+      draft["draft object"]
+      storageKey["STORAGE_KEY"]
+    end
+
+    subgraph PERSIST["Persistence"]
+      direction TB
+      LS["window.localStorage"]
+    end
+  end
+
+  %% ========= FUTURE SERVICES =========
+  subgraph SERVICES["External Services (Future)"]
+    direction TB
+    API["Django REST API"]
+  end
+
+  %% ========= USER -> UI =========
+  U -->|types/selects| Inputs
+  U -->|click| Buttons
+
+  %% ========= EVENTS =========
+  Buttons -->|Next| EV_NEXT
+  EV_NEXT --> goNext
+
+  Buttons -->|Back| EV_BACK
+  EV_BACK --> goBack
+
+  Buttons -->|Reset| EV_RESET
+  EV_RESET --> resetDraft
+
+  %% ========= STARTUP FLOW =========
+  U -. page load .-> EV_START
+  EV_START --> loadDraft
+  loadDraft -->|getItem| LS
+  LS -->|saved draft or null| loadDraft
+  loadDraft -->|found| writeInputs
+  loadDraft -->|not found| writeInputs
+  writeInputs --> Inputs
+  writeInputs --> showPanel
+  showPanel --> Panels
+  showPanel --> StepIndicator
+  showPanel -->|label/disabled| Buttons
+  showPanel -->|UX text| setMessage
+  setMessage --> Message
+
+  %% ========= NEXT FLOW =========
+  goNext --> readPanel
+  readPanel --> draft
+  goNext --> validate
+  validate -->|error| setMessage
+  validate -->|OK| currentPanel
+
+  goNext -->|if currentPanel < 4| showPanel
+  goNext -->|if currentPanel == 4| saveDraft
+  saveDraft -->|setItem| LS
+  saveDraft -. future sync .-> API
+  saveDraft --> showPanel
+  saveDraft --> setMessage
+
+  %% ========= BACK =========
+  goBack -->|if currentPanel > 1| showPanel
+
+  %% ========= RESET =========
+  resetDraft -->|removeItem| LS
+  resetDraft -->|reset state| draft
+  resetDraft --> writeInputs
+  resetDraft --> showPanel
+  resetDraft -->|Draft cleared| setMessage
+
+  %% ========= STATE LINKS =========
+  showPanel --> currentPanel
+  readPanel --> currentPanel

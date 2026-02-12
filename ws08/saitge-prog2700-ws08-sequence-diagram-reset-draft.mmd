@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant User
+    participant Btn as Reset Button
+    participant JS as resetDraft()
+    participant Storage as localStorage
+    participant State as draft state
+    participant DOM as Inputs
+    participant UI as Panels/Message
+
+    User->>Btn: click
+    Btn->>JS: resetDraft()
+
+    JS->>Storage: removeItem(STORAGE_KEY)
+
+    JS->>State: draft = empty default object
+
+    JS->>DOM: writeStateIntoAllInputs()
+
+    JS->>UI: showPanel(1)
+    JS->>UI: setMessage("Draft cleared.", muted)
