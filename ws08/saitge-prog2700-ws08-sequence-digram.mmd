@@ -1,0 +1,110 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant DOM as DOM / UX (Panels, Inputs, Message, Step Indicator)
+    participant Buttons as Buttons (Next/Back/Reset)
+    participant Wizard as Wizard (JS Controller)
+    participant Validation as Validation Gates
+    participant LS as localStorage
+    participant DjangoAPI as Django REST API (future)
+    participant TransitAPI as Transit ETA API (future)
+
+    %% ==============================
+    %% Startup
+    %% ==============================
+    rect rgba(235,245,255,0.6)
+        User ->> DOM: Load page
+        DOM ->> Wizard: startup()
+        Wizard ->> LS: getItem(STORAGE_KEY)
+
+        alt Draft found
+            LS -->> Wizard: draft + savedAt
+            Wizard ->> DOM: writeStateIntoAllInputs(draft)
+            Wizard ->> DOM: showPanel(1)
+            Wizard ->> DOM: setMessage(Draft loaded, success)
+        else No saved draft
+            LS -->> Wizard: null
+            Wizard ->> DOM: writeStateIntoAllInputs(empty)
+            Wizard ->> DOM: showPanel(1)
+            Wizard ->> DOM: setMessage(No saved draft found. Start Step 1., muted)
+        end
+    end
+
+    %% ==============================
+    %% Navigation: Next
+    %% ==============================
+    rect rgba(245,255,245,0.6)
+        loop Each time user clicks Next
+            User ->> Buttons: click Next
+            Buttons ->> Wizard: goNext()
+            Wizard ->> DOM: readPanelIntoState(currentPanel)
+            Wizard ->> Validation: validatePanel(currentPanel)
+
+            alt Validation error
+                Validation -->> Wizard: error string
+                Wizard ->> DOM: setMessage(error, error)
+                note right of DOM
+                    Stay on current panel;
+                    no state change beyond message
+                end note
+            else Valid
+                Validation -->> Wizard: OK
+
+                alt currentPanel lt 4 (move forward)
+                    Wizard ->> DOM: showPanel(currentPanel + 1)
+                    note right of DOM
+                        - Updates step indicator
+                        - Back button disabled state
+                        - Next button label (Next vs Save Draft)
+                        - setMessage(You are on Step n of 4., muted)
+                    end note
+                else currentPanel == 4 (final)
+                    Wizard ->> LS: setItem(STORAGE_KEY, save draft)
+                    LS -->> Wizard: OK
+
+                    par Persist to server (future)
+                        Wizard ->> DjangoAPI: POST/PUT /draft
+                        DjangoAPI -->> Wizard: 200 OK
+                    and Calculate stop_arrive_time (future)
+                        Wizard ->> TransitAPI: GET /eta?stop=...
+                        TransitAPI -->> Wizard: arrive_time
+                        Wizard ->> DOM: writeStateIntoAllInputs(updatedDraft)
+                    end
+
+                    Wizard ->> DOM: showPanel(1)
+                    Wizard ->> DOM: setMessage(Draft saved locally. Restarted at Step 1., success)
+                end
+            end
+        end
+    end
+
+    %% ==============================
+    %% Navigation: Back
+    %% ==============================
+    rect rgba(255,248,230,0.6)
+        User ->> Buttons: click Back
+        Buttons ->> Wizard: goBack()
+
+        alt currentPanel > 1
+            Wizard ->> DOM: showPanel(currentPanel - 1)
+            note right of DOM
+                Updates step indicator
+                and Next/Back states
+            end note
+        else Already at panel 1
+            Wizard ->> DOM: no-op
+        end
+    end
+
+    %% ==============================
+    %% Reset Draft
+    %% ==============================
+    rect rgba(255,235,235,0.6)
+        User ->> Buttons: click Reset
+        Buttons ->> Wizard: resetDraft()
+        Wizard ->> LS: removeItem(STORAGE_KEY)
+        LS -->> Wizard: OK
+        Wizard ->> DOM: writeStateIntoAllInputs(empty)
+        Wizard ->> DOM: showPanel(1)
+        Wizard ->> DOM: setMessage(Draft cleared., muted)
+    end

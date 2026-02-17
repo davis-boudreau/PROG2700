@@ -1,0 +1,32 @@
+---
+title: UI State with Panel Navigation (Controls what the user sees)
+---
+sequenceDiagram
+autonumber
+actor U as User
+participant UI as UI Controls
+participant JS as script.js
+participant DOM as DOM Renderer
+
+Note over JS: UI State: currentPanel (1..4)
+
+U->>UI: Click Next
+UI->>JS: goNext()
+JS->>JS: increment currentPanel
+
+%% Change the color of the rectangle to light blue color for printing. %%
+%% rect rgb(235, 245, 255) %%
+rect rgb(73, 80, 87)
+    Note right of DOM: View Update Batch
+    JS->>DOM: showPanel(currentPanel)
+    DOM-->>UI: Hide all panels
+    DOM-->>UI: Show active panel
+    DOM-->>UI: Update indicator & button labels
+    DOM-->>UI: Sync Back button state
+end
+
+U->>UI: Click Back
+UI->>JS: goBack()
+JS->>JS: decrement currentPanel
+JS->>DOM: showPanel(currentPanel)
+DOM-->>UI: Update visible panel + controls

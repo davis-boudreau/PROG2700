@@ -1,0 +1,54 @@
+---
+title: Form (Data) State with Persistence (Controls save / resume behavior using localStorage)
+---
+sequenceDiagram
+autonumber
+actor U as User
+participant C as Controls
+participant J as Script
+participant S as Storage
+
+Note over J: Persistence uses STORAGE_KEY + JSON
+Note over S: Stores { draft, savedAt }
+
+U->>C: Click Save Draft
+C->>J: goNext final step
+J->>J: readPanelIntoState(4)
+J->>J: validatePanel(4)
+
+%% Change the color of the rectangle to light blue color for printing. %%
+%% rect rgb(235, 245, 255) %%
+rect rgb(73, 80, 87)
+    Note right of S: Validation
+    alt Validation fails
+    J-->>C: Show error
+    else Validation passes
+    J->>S: setItem STORAGE_KEY
+    S-->>J: OK
+    J-->>C: Show success message
+    J-->>C: showPanel(1)
+    end
+end
+U->>C: Refresh page
+C->>J: Startup runs
+J->>S: getItem STORAGE_KEY
+
+%% Change the color of the rectangle to light blue color for printing. %%
+%% rect rgb(235, 245, 255) %%
+rect rgb(73, 80, 87)
+    Note right of S: State Rehydration
+    alt Draft exists
+    S-->>J: payload JSON
+    J->>J: draft = parsed draft
+    J-->>C: writeStateIntoAllInputs
+    J-->>C: showPanel(1)
+    else No draft
+    S-->>J: null
+    J-->>C: init empty draft
+    end
+end
+U->>C: Click Reset Draft
+C->>J: resetDraft
+J->>S: removeItem STORAGE_KEY
+S-->>J: OK
+J-->>C: clear inputs + showPanel(1)

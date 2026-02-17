@@ -1,0 +1,33 @@
+---
+title: Form (Data) State with Validation (Stores user input and checks it)
+---
+sequenceDiagram
+autonumber
+actor U as User
+participant UI as UI
+participant JS as JS
+participant V as Validator
+
+Note over JS: State = draft {origin, time, days, ...}
+
+U->>UI: Enter values
+U->>UI: Click Next
+UI->>JS: goNext()
+JS->>JS: readPanelIntoState(currentPanel)
+JS->>UI: Read input values
+UI-->>JS: Raw input values
+JS->>JS: Update draft (single source of truth)
+
+%% Change the color of the rectangle to light blue color for printing. %%
+%% rect rgb(235, 245, 255) %%
+rect rgb(73, 80, 87)
+    Note right of V: Validation
+    JS->>V: validatePanel(currentPanel, draft)
+    alt Validation fails
+    V-->>JS: error message
+    JS-->>UI: Show error
+    else Validation passes
+    V-->>JS: OK
+    JS-->>UI: Proceed to next panel
+    end
+end
