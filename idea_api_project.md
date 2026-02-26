@@ -1,7 +1,3 @@
-Here’s a curated list of **student‑friendly APIs** perfect for teaching **async JavaScript**, **JSON**, and **front‑end integration**. All of these are widely used, well‑documented, and flexible enough to build all kinds of student projects. I’ve included **Shopify** as requested.
-
-***
-
 # 🌐 Great APIs for Teaching Async JavaScript & JSON
 
 ### (Sports, news, media, e‑commerce, gaming, and more)
@@ -189,38 +185,3 @@ Students can fetch products, collections, images, and build simple storefronts. 
 *   Show “top tracks” for a genre
 
 ***
-
-# 🔧 Great APIs for Beginners (No Auth Required)
-
-## 🔢 13. NumbersAPI
-
-**Type:** Fun facts  
-**Auth:** None  
-**Ideas:** Trivia generator, date facts
-
-## 🤖 14. DummyJSON
-
-**Type:** Fake e‑commerce data  
-**Auth:** None  
-**Ideas:** Product lists, CRUD practice
-
-## 👤 15. RandomUser API
-
-**Type:** Fake users  
-**Auth:** None  
-**Ideas:** User directory UI, profile cards
-
-***
-
-# 🧪 Want an assignment outline?
-
-If you want, I can also:  
-✔️ create a full **assignment sheet**  
-✔️ include **marking rubrics**  
-✔️ include **starter code** (async/await + fetch)  
-✔️ give **project ideas** categorized by difficulty  
-✔️ build **step‑by‑step labs** for teaching async/await
-
-***
-
-If you'd like that, what level are your students? (Intro web dev? Intermediate JS?)
