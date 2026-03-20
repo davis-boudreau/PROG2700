@@ -1,0 +1,28 @@
+graph TD
+    %% Azure Boards Phase
+    subgraph "Azure Boards (Management)"
+        A[Work Item Assigned] -->|Task ID: #123| B(Create Branch Link)
+    end
+
+    %% Local Development Phase
+    subgraph "Local Workspace (Execution)"
+        B --> C[git checkout main]
+        C --> D[git pull origin main]
+        D --> E["git checkout -b feature/123-description"]
+        E --> F[Coding / Commits]
+        F --> G["git add ."]
+        G --> H["git commit -m 'feat: #123 - add recurring event logic'"]
+    end
+
+    %% Remote Sync Phase
+    subgraph "Azure DevOps / Git Remote"
+        H --> I["git push origin feature/123-description"]
+        I --> J[Create Pull Request]
+        J --> K{Code Review / CI Build}
+        K -->|Approved| L[Merge to main]
+        K -->|Changes Needed| F
+        L --> M[Delete Feature Branch]
+    end
+
+    %% Feedback Loop
+    M -->|Updates Board| A
