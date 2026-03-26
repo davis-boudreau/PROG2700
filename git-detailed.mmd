@@ -1,0 +1,100 @@
+sequenceDiagram
+    autonumber
+
+    participant Dev as Developer
+    participant ADO as Azure DevOps
+    participant VS as VS Code
+    participant Git as Local Git Repo
+    participant App as Local App / Test Runner
+
+    Dev->>ADO: Open project → Repos → Branches
+    Dev->>ADO: Create new branch from main\nExample: feature/event-search
+    Dev->>ADO: Copy repository clone URL
+    Dev->>VS: Open VS Code
+
+    alt Repo not cloned locally
+        Dev->>Git: git clone https://dev.azure.com/org/project/_git/repo
+        Dev->>Git: cd repo
+        Dev->>VS: code .
+    else Repo already cloned locally
+        Dev->>Git: cd repo
+        Dev->>VS: code .
+    end
+
+    Dev->>Git: git fetch origin
+    Dev->>Git: git checkout feature/event-search
+
+    alt Local branch does not exist
+        Dev->>Git: git checkout -b feature/event-search --track origin/feature/event-search
+    else Local branch already exists
+        Note over Dev,Git: Use existing local feature branch
+    end
+
+    loop Development cycle until work complete
+        Dev->>VS: Edit files in VS Code
+        Dev->>Git: git status
+        Dev->>App: npm install
+        Dev->>App: npm run dev
+        Dev->>App: npm test
+    end
+
+    Dev->>Git: git add .
+    Dev->>Git: git commit -m "Implement event search improvements"
+    Dev->>Git: git push origin feature/event-search
+    Git->>ADO: Push feature branch
+
+    alt Main has changed
+        Dev->>Git: git fetch origin
+        Dev->>Git: git checkout feature/event-search
+        Dev->>Git: git rebase origin/main
+
+        alt Rebase conflicts occur
+            loop Resolve until no conflicts remain
+                Dev->>VS: Resolve conflicts
+                Dev->>Git: git status
+                Dev->>Git: git add .
+                Dev->>Git: git rebase --continue
+            end
+        else No rebase conflicts
+            Note over Dev,Git: Rebase completes cleanly
+        end
+
+        Dev->>App: npm test
+        Dev->>Git: git push --force-with-lease origin feature/event-search
+        Git->>ADO: Update rebased branch
+    else Main has not changed
+        Note over Dev,ADO: No rebase needed
+    end
+
+    alt Not ready to create PR
+        Dev->>Git: git status
+        Note over Dev,Git: Continue development on same branch
+    else Ready to create PR
+        Dev->>ADO: Create Pull Request\nSource: feature/event-search\nTarget: main
+        ADO->>ADO: Run reviewers, policies, validation, build checks
+
+        alt PR not approved or checks fail
+            loop Address feedback until approved
+                Dev->>VS: Edit files to address feedback
+                Dev->>Git: git add .
+                Dev->>Git: git commit -m "Address PR feedback"
+                Dev->>Git: git push origin feature/event-search
+                Git->>ADO: Update PR branch
+                ADO->>ADO: Re-run review and checks
+            end
+        else PR approved and checks passed
+            Dev->>ADO: Complete / merge Pull Request into main
+            opt Optionally delete remote branch
+                Dev->>ADO: Delete remote branch
+            end
+            Dev->>Git: git checkout main
+            Dev->>Git: git pull origin main
+
+            alt More work to do
+                Dev->>Git: git checkout -b feature/next-task
+                Note over Dev,Git: Start next development cycle
+            else No more work
+                Note over Dev,ADO: End workflow
+            end
+        end
+    end

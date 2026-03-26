@@ -1,0 +1,64 @@
+sequenceDiagram
+    autonumber
+
+    participant Dev as Developer
+    participant ADO as Azure DevOps
+    participant VS as VS Code
+    participant Git as Local Git Repo
+    participant Test as Local Test Runner
+
+    Dev->>ADO: Create branch in Azure DevOps\nfeature/your-task
+    Dev->>VS: Clone or open repo in VS Code\ngit clone <repo-url>\ncd repo\ncode .
+    Dev->>Git: git fetch origin
+    Dev->>Git: Switch to working branch\ngit checkout feature/your-task\nor\ngit checkout -b feature/your-task --track origin/feature/your-task
+
+    loop Development cycle
+        Dev->>VS: Develop in VS Code
+        Dev->>Git: git status
+        Dev->>Test: npm test
+        Dev->>Git: git add .
+        Dev->>Git: git commit -m "Your message"
+        Dev->>Git: git push origin feature/your-task
+        Git->>ADO: Update remote feature branch
+
+        alt Main has changed
+            Dev->>Git: git fetch origin
+            Dev->>Git: git checkout feature/your-task
+            Dev->>Git: git rebase origin/main
+
+            alt Conflicts occur
+                Dev->>VS: Resolve conflicts
+                Dev->>Git: git add .
+                Dev->>Git: git rebase --continue
+            else No conflicts
+                Note over Dev,Git: Rebase completes cleanly
+            end
+
+            Dev->>Test: npm test
+            Dev->>Git: git push --force-with-lease origin feature/your-task
+            Git->>ADO: Update rebased feature branch
+        else Main has not changed
+            Note over Dev,ADO: No rebase needed
+        end
+
+        alt Not ready for Pull Request
+            Note over Dev,VS: Continue development on same branch
+        else Ready for Pull Request
+            Dev->>ADO: Create Pull Request
+            ADO->>ADO: Run approval checks and validation
+
+            alt PR not approved or checks fail
+                Dev->>VS: Address feedback
+                Dev->>Git: git add .
+                Dev->>Git: git commit -m "Address feedback"
+                Dev->>Git: git push origin feature/your-task
+                Git->>ADO: Update PR branch
+            else PR approved and checks passed
+                Dev->>ADO: Merge PR into main
+                Dev->>Git: git checkout main
+                Dev->>Git: git pull origin main
+                Dev->>Git: git checkout -b feature/next-task
+                Note over Dev,Git: Start next task branch
+            end
+        end
+    end
