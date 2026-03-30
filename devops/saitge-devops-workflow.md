@@ -13,19 +13,18 @@ sequenceDiagram
     Dev->>ADO: Get access to project and repository
     Dev->>ADO: Copy repository clone URL
     Dev->>VS: Open VS Code
-    Dev->>Git: Clone repository locally\n git clone <repo-url>
-    Dev->>Git: Open repo folder\n cd repo && code .
+    Dev->>Git: Clone repository locally: git clone <repo-url>
+    Dev->>Git: Open repo folder: cd repo && code .
 
-    Dev->>Git: Fetch latest changes\n git fetch origin
-    Dev->>Git: Switch to main\n git checkout main
-    Dev->>Git: Pull latest main\n git pull origin main
+    Dev->>Git: Fetch latest changes: git fetch origin
+    Dev->>Git: Switch to main: git checkout main
+    Dev->>Git: Pull latest main: git pull origin main
 
-    Dev->>Git: Create new feature branch\n git checkout -b feature/your-task
+    Dev->>Git: Create new feature branch: git checkout -b workitem_type/AB-taskID-short-description
     Dev->>VS: Make code changes
-    Dev->>Git: Check work\n git status
-    Dev->>Git: Stage and commit changes\n git add .\n git commit -m "Your message"
-    Dev->>Git: Push feature branch\n git push origin feature/your-task
-
+    Dev->>Git: Check work: git status
+    Dev->>Git: Stage and commit changes: git add .\n git commit -m "AB-workorderID-Short Action Description"
+    Dev->>Git: Push feature branch: git push origin workitem_type/AB-taskID-short-description
     Dev->>ADO: Create Pull Request
     ADO->>Team: Request review and run checks
     Team-->>ADO: Approve or request changes
@@ -38,9 +37,9 @@ sequenceDiagram
         ADO->>ADO: Merge PR into main
     end
 
-    Dev->>Git: Switch back to main\n git checkout main
-    Dev->>Git: Pull updated main\n git pull origin main
-    Dev->>Git: Start next branch\n git checkout -b feature/next-task
+    Dev->>Git: Switch back to main: git checkout main
+    Dev->>Git: Pull updated main: git pull origin main
+    Dev->>Git: Start next branch: git checkout -b workitem_type/AB-taskID-short-description
 ```
 
 This version keeps the story very clean:
