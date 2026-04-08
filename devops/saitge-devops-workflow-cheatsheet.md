@@ -43,7 +43,9 @@ git push origin feature/event-search
 ### Rebase onto latest main
 
 ```bash
-git fetch origin
+git checkout main
+git fetch
+git pull
 git checkout feature/event-search
 git rebase origin/main
 ```
